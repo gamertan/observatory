@@ -1,0 +1,63 @@
+<?sando go
+package site
+
+func IncidentInbox(view IncidentInboxView)
+?>
+<?# SPDX-License-Identifier: AGPL-3.0-only ?>
+<!doctype html>
+<html lang="en">
+<head><?~ Head(view.Head) ?></head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <?~ SiteHeader(true, "incidents", view.Organization.ID) ?>
+  <main id="main" data-open-incident-count="<?= view.OpenCount ?>">
+    <nav class="breadcrumbs" aria-label="Breadcrumb"><a href="/app/?organization=<?= view.Organization.ID ?>">Overview</a><span aria-hidden="true">/</span><span aria-current="page">Incidents</span></nav>
+    <section class="app-intro" aria-labelledby="incident-title">
+      <div><p class="eyebrow">Incident inbox · <?= view.Organization.Name ?></p><h1 id="incident-title">What needs attention?</h1><p>Welcome, <?= view.DisplayName ?>. Rules use bounded saved queries; this inbox keeps the human response durable and reviewable.</p></div>
+    </section>
+    <aside class="live-status" data-events-url="<?= view.EventsURL ?>" hidden><p><strong>Incident evidence changed.</strong> <a href="/app/incidents/?organization=<?= view.Organization.ID ?>">Refresh this inbox</a>.</p></aside>
+    <section class="offline-control" aria-labelledby="offline-copy-title"><div><h2 id="offline-copy-title">Keep a careful offline copy</h2><p id="offline-copy-note">This is opt-in. The saved copy excludes response controls, CSRF material, query text, telemetry values, actors, and project, environment, or service identifiers.</p></div><div><button class="secondary" type="button" data-cache-inbox data-offline-source="<?= view.OfflineURL ?>" data-offline-target="<?= view.CacheKey ?>" aria-describedby="offline-copy-note" disabled>Save this inbox for offline use</button><p data-cache-status role="status" aria-live="polite">Offline saving requires service-worker support.</p></div></section>
+    <? if view.PushPublicKey != "" { ?><section class="offline-control" aria-labelledby="push-title"><div><h2 id="push-title">Ask this browser to nudge you</h2><p id="push-note">Optional Web Push sends one fixed message through the browser vendor: “Gamertan Observatory needs your attention.” It never includes an organization, host, service, severity, rule, incident identifier, count, or telemetry text.</p></div><div><button class="secondary" type="button" data-push-toggle data-push-public-key="<?= view.PushPublicKey ?>" data-push-organization="<?= view.Organization.ID ?>" data-push-csrf="<?= view.PushCSRF ?>" aria-describedby="push-note" disabled>Enable private incident nudges</button><p data-push-status role="status" aria-live="polite">Push requires service-worker and notification support.</p></div></section><? } ?>
+    <section class="section-grid" aria-labelledby="active-incidents">
+      <div><p class="eyebrow">Durable state</p><h2 id="active-incidents">Incidents</h2></div>
+      <div class="incident-list">
+      <? if len(view.Incidents) == 0 { ?><p>No incidents have been opened.</p><? } ?>
+      <? for _, incident := range view.Incidents { ?>
+        <article class="incident-card" data-state="<?= incident.State ?>">
+          <div><p class="eyebrow"><?= incident.Severity ?> · <?= incident.State ?></p><h3><?= incident.Title ?></h3></div>
+          <dl><div><dt>Started</dt><dd><?= incident.StartedAt ?></dd></div><div><dt>Updated</dt><dd><?= incident.UpdatedAt ?></dd></div><? if incident.SilencedUntil != "" { ?><div><dt>Silenced until</dt><dd><?= incident.SilencedUntil ?></dd></div><? } ?></dl>
+          <? if view.CanManage && incident.State != "resolved" { ?>
+          <div class="incident-actions" aria-label="Actions for <?= incident.Title ?>">
+            <form method="post" action="/app/incidents/<?= incident.ID ?>/"><input type="hidden" name="organization_id" value="<?= view.Organization.ID ?>"><input type="hidden" name="csrf_token" value="<?= view.ManageCSRF ?>"><input type="hidden" name="action" value="acknowledge"><input type="hidden" name="silence_duration" value=""><button class="secondary" type="submit">Acknowledge</button></form>
+            <form method="post" action="/app/incidents/<?= incident.ID ?>/"><input type="hidden" name="organization_id" value="<?= view.Organization.ID ?>"><input type="hidden" name="csrf_token" value="<?= view.ManageCSRF ?>"><input type="hidden" name="action" value="silence"><label for="silence-<?= incident.ID ?>">Silence for</label><select id="silence-<?= incident.ID ?>" name="silence_duration"><option value="15m">15 minutes</option><option value="1h">1 hour</option><option value="6h">6 hours</option><option value="24h">24 hours</option><option value="168h">7 days</option></select><button class="secondary" type="submit">Silence</button></form>
+            <form method="post" action="/app/incidents/<?= incident.ID ?>/"><input type="hidden" name="organization_id" value="<?= view.Organization.ID ?>"><input type="hidden" name="csrf_token" value="<?= view.ManageCSRF ?>"><input type="hidden" name="action" value="resolve"><input type="hidden" name="silence_duration" value=""><button class="secondary" type="submit">Resolve</button></form>
+          </div>
+          <? } ?>
+        </article>
+      <? } ?>
+      </div>
+    </section>
+    <section class="section-grid" aria-labelledby="alert-rules">
+      <div><p class="eyebrow">Bounded evaluation</p><h2 id="alert-rules">Alert rules</h2></div>
+      <div class="saved-grid">
+      <? if len(view.Rules) == 0 { ?><p>No alert rules yet.</p><? } ?>
+      <? for _, rule := range view.Rules { ?><article><p class="eyebrow"><?= rule.Severity ?></p><h3><?= rule.Name ?></h3><p><?= rule.Description ?></p><dl><div><dt>Interval</dt><dd><?= rule.Interval ?></dd></div><div><dt>Status</dt><dd><? if rule.Enabled { ?>Enabled<? } else { ?>Disabled<? } ?></dd></div><? if rule.LastEvaluatedAt != "" { ?><div><dt>Last evaluated</dt><dd><?= rule.LastEvaluatedAt ?></dd></div><? } ?><? if rule.LastError != "" { ?><div><dt>Last result</dt><dd>Query unavailable</dd></div><? } ?></dl></article><? } ?>
+      </div>
+    </section>
+    <? if view.CanManage { ?>
+    <section class="section-grid" aria-labelledby="create-alert">
+      <div><p class="eyebrow">Organization workshop</p><h2 id="create-alert">Create an alert rule</h2><p>A rule counts rows returned by one saved query. Consecutive matches allow brief noise to remain pending before an incident fires.</p></div>
+      <form class="editor-card" method="post" action="/app/alert-rules/">
+        <input type="hidden" name="organization_id" value="<?= view.Organization.ID ?>"><input type="hidden" name="csrf_token" value="<?= view.ManageCSRF ?>">
+        <label for="alert-name">Name</label><input id="alert-name" name="name" required maxlength="128">
+        <label for="alert-description">Description</label><textarea id="alert-description" name="description" required maxlength="1024"></textarea>
+        <label for="alert-query">Saved query</label><select id="alert-query" name="saved_query_id" required><option value="">Choose a saved query</option><? for _, item := range view.SavedQueries { ?><option value="<?= item.ID ?>"><?= item.Name ?></option><? } ?></select>
+        <div class="field-grid"><div><label for="alert-severity">Severity</label><select id="alert-severity" name="severity" required><option value="information">Information</option><option value="warning" selected>Warning</option><option value="critical">Critical</option></select></div><div><label for="alert-interval">Evaluate every</label><select id="alert-interval" name="evaluation_interval" required><option value="15s">15 seconds</option><option value="30s">30 seconds</option><option value="1m" selected>1 minute</option><option value="5m">5 minutes</option><option value="15m">15 minutes</option></select></div><div><label for="alert-matches">Minimum matching rows</label><input id="alert-matches" type="number" name="minimum_matches" min="1" max="100000" value="1" required></div><div><label for="alert-confirmations">Consecutive evaluations</label><input id="alert-confirmations" type="number" name="required_consecutive" min="1" max="10" value="2" required></div></div>
+        <? if len(view.SavedQueries) == 0 { ?><button type="submit" disabled>Create alert rule</button><? } else { ?><button type="submit">Create alert rule</button><? } ?>
+      </form>
+    </section>
+    <? } ?>
+  </main>
+  <?~ SiteFooter() ?>
+</body>
+</html>

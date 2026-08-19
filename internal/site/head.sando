@@ -1,0 +1,14 @@
+<?sando go
+package site
+
+func Head(view HeadView)
+?>
+<?# SPDX-License-Identifier: AGPL-3.0-only ?>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="<?= view.Description ?>">
+<link rel="canonical" href="<?= view.CanonicalURL ?>">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="stylesheet" href="<?= view.Assets.StylePath ?>">
+<script src="<?= view.Assets.ScriptPath ?>" defer></script>
+<title><?= view.Title ?></title>

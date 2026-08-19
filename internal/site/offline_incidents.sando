@@ -1,0 +1,24 @@
+<?sando go
+package site
+
+func OfflineIncidentInbox(view OfflineIncidentView)
+?>
+<?# SPDX-License-Identifier: AGPL-3.0-only ?>
+<!doctype html>
+<html lang="en">
+<head><?~ Head(view.Head) ?></head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <?~ SiteHeader(true, "incidents", view.Organization.ID) ?>
+  <main id="main" data-open-incident-count="<?= len(view.Incidents) ?>">
+    <nav class="breadcrumbs" aria-label="Breadcrumb"><a href="/app/">Overview</a><span aria-hidden="true">/</span><span aria-current="page">Saved incident inbox</span></nav>
+    <section class="app-intro" aria-labelledby="offline-incident-title"><div><p class="eyebrow">Offline snapshot · <?= view.Organization.Name ?></p><h1 id="offline-incident-title">Saved incident inbox</h1><p>Captured <?= view.CapturedAt ?>. Response actions are intentionally unavailable offline.</p></div></section>
+    <section class="section-grid" aria-labelledby="saved-incidents"><div><p class="eyebrow">Read-only</p><h2 id="saved-incidents">Incidents</h2></div><div class="incident-list">
+      <? if len(view.Incidents) == 0 { ?><p>No open incidents were present in this snapshot.</p><? } ?>
+      <? for _, incident := range view.Incidents { ?><article class="incident-card" data-state="<?= incident.State ?>"><p class="eyebrow"><?= incident.Severity ?> · <?= incident.State ?></p><h3><?= incident.Title ?></h3><dl><div><dt>Started</dt><dd><?= incident.StartedAt ?></dd></div><div><dt>Updated</dt><dd><?= incident.UpdatedAt ?></dd></div><? if incident.SilencedUntil != "" { ?><div><dt>Silenced until</dt><dd><?= incident.SilencedUntil ?></dd></div><? } ?></dl></article><? } ?>
+    </div></section>
+    <section class="section-grid" aria-labelledby="offline-boundary"><div><p class="eyebrow">Privacy boundary</p><h2 id="offline-boundary">This copy stays on this browser.</h2></div><div><p>It contains the organization name, incident titles, and states, but no response controls, CSRF tokens, query text, telemetry values, actor identifiers, or project, environment, or service identifiers. Signing out while online clears saved private snapshots.</p><p><a class="button secondary" href="/app/">Reconnect and refresh</a></p></div></section>
+  </main>
+  <?~ SiteFooter() ?>
+</body>
+</html>

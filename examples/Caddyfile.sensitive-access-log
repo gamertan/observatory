@@ -1,0 +1,43 @@
+# SPDX-License-Identifier: 0BSD
+#
+# Explicit richer-evidence example. Replace the origin, upstream, paths, and
+# query-key deny list only after reviewing the application's privacy policy.
+
+example.com {
+	log application_sensitive_access {
+		output file /var/log/caddy/example-sensitive-access.jsonl {
+			mode 0640
+			roll_size 100mb
+			roll_keep 10
+			roll_keep_for 720h
+		}
+		format filter {
+			request>uri query {
+				delete access_token
+				delete api_key
+				delete authorization
+				delete code
+				delete credential
+				delete key
+				delete password
+				delete secret
+				delete session
+				delete session_id
+				delete token
+			}
+			client_ip ip_mask 24 56
+			request>remote_ip delete
+			request>remote_port delete
+			request>client_ip delete
+			request>headers delete
+			resp_headers delete
+			user_id delete
+			wrap json
+		}
+	}
+	log_append request_id {http.response.header.X-Request-ID}
+	log_append client_ip {http.request.client_ip}
+	log_append referrer {http.request.header.Referer}
+	log_append user_agent {http.request.header.User-Agent}
+	reverse_proxy 127.0.0.1:8080
+}

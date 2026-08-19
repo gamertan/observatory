@@ -1,0 +1,24 @@
+<?sando go
+package site
+
+func ResultTable(view TableView)
+?>
+<?# SPDX-License-Identifier: AGPL-3.0-only ?>
+<div class="table-scroll" tabindex="0" role="region" aria-label="<?= view.Caption ?>">
+  <table>
+    <caption><?= view.Caption ?></caption>
+    <thead><tr>
+    <? for _, column := range view.Columns { ?>
+      <th scope="col"><?= column.Label ?><? if column.Unit != "" { ?> <span class="unit">(<?= column.Unit ?>)</span><? } ?></th>
+    <? } ?>
+    </tr></thead>
+    <tbody>
+    <? for _, row := range view.Rows { ?>
+      <tr><? for _, value := range row.Values { ?><td><?= value ?></td><? } ?></tr>
+    <? } ?>
+    <? if len(view.Rows) == 0 { ?>
+      <tr><td colspan="<?= len(view.Columns) ?>"><?= view.Empty ?></td></tr>
+    <? } ?>
+    </tbody>
+  </table>
+</div>

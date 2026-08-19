@@ -1,0 +1,50 @@
+{
+  "schema_version": 2,
+  "service": {
+    "name": "observatory",
+    "allowed_host": "observatory.gamertan.com",
+    "environment_file": "/etc/tend/environment/observatory.env"
+  },
+  "build": {
+    "package": "./cmd/observatory",
+    "binary": "observatory",
+    "branch": "main",
+    "version_symbol": "gamertan.com/observatory/internal/version.Version",
+    "commit_symbol": "gamertan.com/observatory/internal/version.Commit",
+    "date_symbol": "gamertan.com/observatory/internal/version.Date"
+  },
+  "deployment": {
+    "strategy": "singleton_candidate",
+    "root": "/opt/gamertan-observatory",
+    "lock_file": "/run/lock/tend-deploy.lock",
+    "state_file": "/opt/gamertan-observatory/tend-state.json",
+    "event_log": "/opt/gamertan-observatory/deployment-events.jsonl",
+    "health_path": "/healthz",
+    "readiness_path": "/readyz",
+    "candidate_timeout_seconds": 30,
+    "activation_window_seconds": 10,
+    "smoke": [
+      {
+        "path": "/",
+        "contains": "Gamertan Observatory"
+      }
+    ],
+    "public_smoke": [
+      {
+        "url": "https://observatory.gamertan.com/",
+        "contains": "Gamertan Observatory"
+      }
+    ],
+    "singleton": {
+      "unit": "gamertan-observatory.service",
+      "address": "127.0.0.1:8093",
+      "candidate_address": "127.0.0.1:18093",
+      "listen_env": "OBSERVATORY_TEND_CANDIDATE_LISTEN",
+      "current_link": "/opt/gamertan-observatory/current",
+      "previous_link": "/opt/gamertan-observatory/previous",
+      "caddy_config": "/etc/caddy/Caddyfile",
+      "caddy_handler": "/etc/caddy/observatory.caddy",
+      "caddy_handler_template": "/etc/tend/caddy/observatory.template"
+    }
+  }
+}

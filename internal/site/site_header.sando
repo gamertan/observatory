@@ -1,0 +1,20 @@
+<?sando go
+package site
+
+func SiteHeader(authenticated bool, current string, organizationID string)
+?>
+<?# SPDX-License-Identifier: AGPL-3.0-only ?>
+<header class="site-header">
+  <? if authenticated { ?>
+    <a class="wordmark" href="/app/?organization=<?= organizationID ?>">Gamertan Observatory</a>
+    <nav aria-label="Primary">
+      <? if current == "overview" { ?><a aria-current="page" href="/app/?organization=<?= organizationID ?>">Overview</a><? } else { ?><a href="/app/?organization=<?= organizationID ?>">Overview</a><? } ?>
+      <? if current == "explore" { ?><a aria-current="page" href="/app/explore/?organization=<?= organizationID ?>">Explore</a><? } else { ?><a href="/app/explore/?organization=<?= organizationID ?>">Explore</a><? } ?>
+      <? if current == "dashboards" { ?><a aria-current="page" href="/app/?organization=<?= organizationID ?>#dashboards">Dashboards</a><? } else { ?><a href="/app/?organization=<?= organizationID ?>#dashboards">Dashboards</a><? } ?>
+      <? if current == "incidents" { ?><a aria-current="page" href="/app/incidents/?organization=<?= organizationID ?>">Incidents</a><? } else { ?><a href="/app/incidents/?organization=<?= organizationID ?>">Incidents</a><? } ?>
+    </nav>
+  <? } else { ?>
+    <a class="wordmark" href="/">Gamertan Observatory</a>
+    <nav aria-label="Primary"><a href="/login/">Sign in</a></nav>
+  <? } ?>
+</header>

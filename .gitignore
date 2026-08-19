@@ -1,0 +1,11 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+/bin/
+/dist/
+/.cache/
+*.local.json
+*.db
+*.db-shm
+*.db-wal
+/test/browser/node_modules/
+/test/browser/playwright-report/
+/test/browser/test-results/

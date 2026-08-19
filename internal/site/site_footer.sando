@@ -1,0 +1,9 @@
+<?sando go
+package site
+
+func SiteFooter()
+?>
+<?# SPDX-License-Identifier: AGPL-3.0-only ?>
+<footer class="site-footer">
+  <p>Self-hosted, evidence-minded observability. Built and tended by Gamertan.</p>
+</footer>

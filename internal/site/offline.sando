@@ -1,0 +1,7 @@
+<?sando go
+package site
+
+func Offline(view OfflineView)
+?>
+<?# SPDX-License-Identifier: AGPL-3.0-only ?>
+<!doctype html><html lang="en"><head><?~ Head(view.Head) ?></head><body><a class="skip-link" href="#main">Skip to content</a><?~ SiteHeader(false, "", "") ?><main id="main"><section class="hero"><p class="eyebrow">Offline</p><h1>The evidence is still safe.</h1><p class="lede">Observatory cannot reach the server right now. A previously saved incident inbox remains available from its usual address; otherwise, reconnect before viewing private organization data.</p><p><a class="button secondary" href="/app/">Try Observatory again</a></p></section></main><?~ SiteFooter() ?></body></html>

@@ -1,0 +1,12 @@
+<!-- SPDX-License-Identifier: AGPL-3.0-only -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title description">
+  <title id="title">Gamertan Observatory</title>
+  <desc id="description">Three calm observation rings around one bright point.</desc>
+  <rect width="512" height="512" rx="96" fill="#111715"/>
+  <g fill="none" stroke="#b5e3c5" stroke-width="24">
+    <circle cx="256" cy="256" r="168"/>
+    <ellipse cx="256" cy="256" rx="168" ry="72"/>
+    <ellipse cx="256" cy="256" rx="72" ry="168"/>
+  </g>
+  <circle cx="256" cy="256" r="28" fill="#f7c873"/>
+</svg>

@@ -1,0 +1,26 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+observatory.gamertan.com {
+	@responseBody method GET
+	encode @responseBody zstd gzip
+	header Strict-Transport-Security "max-age=31536000; includeSubDomains"
+	log observatory_access {
+		output file /var/log/caddy/observatory-access.jsonl {
+			mode 0640
+			roll_size 100mb
+			roll_keep 10
+			roll_keep_for 720h
+		}
+		format filter {
+			request>uri regexp \?.*$ ""
+			request>remote_ip delete
+			request>remote_port delete
+			request>client_ip delete
+			request>headers delete
+			resp_headers delete
+			user_id delete
+			wrap json
+		}
+	}
+	log_append request_id {http.response.header.X-Request-ID}
+	reverse_proxy 127.0.0.1:8093
+}

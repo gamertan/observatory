@@ -1,0 +1,31 @@
+<?sando go
+package site
+
+func Login(view LoginView)
+?>
+<?# SPDX-License-Identifier: AGPL-3.0-only ?>
+<!doctype html>
+<html lang="en">
+<head><?~ Head(view.Head) ?></head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <?~ SiteHeader(false, "", "") ?>
+  <main id="main" class="auth-shell">
+    <section class="auth-card" aria-labelledby="login-title">
+      <p class="eyebrow">Private workshop</p>
+      <h1 id="login-title">Sign in to Observatory</h1>
+      <p>Use the local account created by <code>observatory admin bootstrap</code>.</p>
+      <? if view.ErrorMessage != "" { ?><p class="form-error" role="alert"><?= view.ErrorMessage ?></p><? } ?>
+      <form method="post" action="/login/">
+        <input type="hidden" name="csrf_token" value="<?= view.CSRFToken ?>">
+        <label for="identifier">Username or email</label>
+        <input id="identifier" name="identifier" autocomplete="username" required maxlength="320">
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" required maxlength="1024">
+        <button type="submit">Sign in</button>
+      </form>
+    </section>
+  </main>
+  <?~ SiteFooter() ?>
+</body>
+</html>

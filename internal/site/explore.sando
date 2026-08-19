@@ -1,0 +1,60 @@
+<?sando go
+package site
+
+func Explore(view ExploreView)
+?>
+<?# SPDX-License-Identifier: AGPL-3.0-only ?>
+<!doctype html>
+<html lang="en">
+<head><?~ Head(view.Head) ?></head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <?~ SiteHeader(true, "explore", view.Organization.ID) ?>
+  <main id="main">
+    <nav class="breadcrumbs" aria-label="Breadcrumb"><a href="/app/?organization=<?= view.Organization.ID ?>">Overview</a><span aria-hidden="true">/</span><span aria-current="page">Explore</span></nav>
+    <section class="app-intro" aria-labelledby="explore-title">
+      <div><p class="eyebrow">Query workshop · <?= view.Organization.Name ?></p><h1 id="explore-title">Follow the evidence.</h1><p>Welcome, <?= view.DisplayName ?>. Write one bounded query, run it on the server, and inspect both the result and its cost.</p></div>
+    </section>
+    <aside class="live-status" data-events-url="<?= view.EventsURL ?>" hidden>
+      <p><strong>New observations are available.</strong> Run the query again when you are ready; Observatory will not replace the result beneath you.</p>
+    </aside>
+    <section class="explore-layout" aria-labelledby="query-title">
+      <div>
+        <p class="eyebrow">Typed query</p>
+        <h2 id="query-title">Ask a bounded question</h2>
+        <p>Queries stay out of the URL and access log. The same parser, authorization scope, sensitivity rules, and execution limits used by the API are applied here.</p>
+        <div class="quick-queries" aria-label="Example queries">
+          <form method="post" action="/app/explore/?organization=<?= view.Organization.ID ?>"><input type="hidden" name="csrf_token" value="<?= view.CSRFToken ?>"><input type="hidden" name="query" value="logs | window 1h | limit 50"><button class="secondary" type="submit">Recent logs</button></form>
+          <form method="post" action="/app/explore/?organization=<?= view.Organization.ID ?>"><input type="hidden" name="csrf_token" value="<?= view.CSRFToken ?>"><input type="hidden" name="query" value="metrics | window 1h | limit 50"><button class="secondary" type="submit">Recent metrics</button></form>
+          <form method="post" action="/app/explore/?organization=<?= view.Organization.ID ?>"><input type="hidden" name="csrf_token" value="<?= view.CSRFToken ?>"><input type="hidden" name="query" value="traces | window 1h | limit 50"><button class="secondary" type="submit">Recent traces</button></form>
+          <form method="post" action="/app/explore/?organization=<?= view.Organization.ID ?>"><input type="hidden" name="csrf_token" value="<?= view.CSRFToken ?>"><input type="hidden" name="query" value="deployments | window 24h | limit 50"><button class="secondary" type="submit">Recent deployments</button></form>
+        </div>
+      </div>
+      <form class="editor-card query-workbench" method="post" action="/app/explore/?organization=<?= view.Organization.ID ?>">
+        <input type="hidden" name="csrf_token" value="<?= view.CSRFToken ?>">
+        <label for="explore-query">Query</label>
+        <textarea id="explore-query" name="query" required maxlength="16384" spellcheck="false"><?= view.Query ?></textarea>
+        <p class="field-help">Begin with <code>logs</code>, <code>metrics</code>, <code>traces</code>, or <code>deployments</code>. Every query has bounded time, rows, bytes, and memory.</p>
+        <button type="submit">Run query</button>
+      </form>
+    </section>
+    <? if view.ErrorMessage != "" { ?><p class="form-error" role="alert"><?= view.ErrorMessage ?></p><? } ?>
+    <? if view.Executed { ?>
+    <section class="query-results" aria-labelledby="results-title">
+      <div class="query-results-heading"><div><p class="eyebrow">Authorized result</p><h2 id="results-title">Query results</h2></div>
+        <dl class="query-stats">
+          <div><dt>Scanned rows</dt><dd><?= view.Stats.ScannedRows ?></dd></div>
+          <div><dt>Matched rows</dt><dd><?= view.Stats.MatchedRows ?></dd></div>
+          <div><dt>Scanned bytes</dt><dd><?= view.Stats.ScannedBytes ?></dd></div>
+          <div><dt>Execution</dt><dd><?= view.Stats.Duration ?></dd></div>
+        </dl>
+      </div>
+      <? if view.Stats.Truncated { ?><p class="live-status"><strong>Result limit reached.</strong> Refine the query or deliberately choose a different bounded limit.</p><? } ?>
+      <? if view.Stats.Approximate { ?><p class="live-status"><strong>Approximate result.</strong> This answer uses an authorized aggregate projection.</p><? } ?>
+      <?~ ResultTable(view.Table) ?>
+    </section>
+    <? } ?>
+  </main>
+  <?~ SiteFooter() ?>
+</body>
+</html>

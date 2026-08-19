@@ -1,0 +1,12 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+* text=auto
+*.go text eol=lf
+*.sando text eol=lf
+*.sh text eol=lf
+*.md text eol=lf
+*.json text eol=lf
+*.svg text eol=lf
+*.css text eol=lf
+*.js text eol=lf
+LICENSE text eol=lf
+

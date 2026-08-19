@@ -1,0 +1,109 @@
+<?sando go
+package site
+
+func Dashboard(view DashboardView)
+?>
+<?# SPDX-License-Identifier: AGPL-3.0-only ?>
+<!doctype html>
+<html lang="en">
+<head><?~ Head(view.Head) ?></head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <?~ SiteHeader(true, "dashboards", view.Organization.ID) ?>
+  <main id="main">
+    <nav class="breadcrumbs" aria-label="Breadcrumb"><a href="/app/?organization=<?= view.Organization.ID ?>">Overview</a> <span aria-hidden="true">/</span> <span aria-current="page"><?= view.Name ?></span></nav>
+    <header class="app-intro"><div><p class="eyebrow"><?= view.Organization.Name ?> · dashboard</p><h1><?= view.Name ?></h1><p><?= view.Description ?></p></div><p><a class="button secondary" href="<?= view.ExportURL ?>">Export JSON</a></p></header>
+    <section class="dashboard-panels" aria-label="Dashboard panels">
+    <? if len(view.Panels) == 0 { ?><p>This dashboard has no panels yet.</p><? } ?>
+    <? for _, panel := range view.Panels { ?>
+      <article class="signal-card">
+        <p class="eyebrow"><?= panel.Visualization ?></p><h2><?= panel.Title ?></h2>
+        <? if panel.Stat != "" { ?><p class="stat" aria-label="Current statistic"><?= panel.Stat ?></p><? } ?>
+        <? if len(panel.Chart.Points) > 0 { ?>
+        <figure class="meter-figure">
+          <figcaption><?= panel.Chart.Label ?></figcaption>
+          <ol class="meter-chart">
+          <? for _, point := range panel.Chart.Points { ?>
+            <li><span class="meter-label"><?= point.Label ?></span><meter min="0" max="<?= point.Maximum ?>" value="<?= point.Value ?>"><?= point.Display ?></meter><span class="meter-value"><?= point.Display ?></span></li>
+          <? } ?>
+          </ol>
+        </figure>
+        <? } ?>
+        <details><summary>Query</summary><pre><code><?= panel.Query ?></code></pre></details>
+        <?~ ResultTable(panel.Table) ?>
+      </article>
+    <? } ?>
+    </section>
+    <? if view.CanManage { ?>
+    <section class="section-grid" aria-labelledby="edit-dashboard">
+      <div><p class="eyebrow">Dashboard workshop</p><h2 id="edit-dashboard">Revise this view</h2><p>Every change includes revision <?= view.Revision ?>. If someone else saves first, Observatory asks you to reload instead of overwriting their work.</p></div>
+      <div class="editor-grid">
+        <form class="editor-card" method="post" action="/app/dashboards/<?= view.Slug ?>/">
+          <h3>Dashboard details</h3>
+          <input type="hidden" name="organization_id" value="<?= view.Organization.ID ?>">
+          <input type="hidden" name="csrf_token" value="<?= view.ManageCSRF ?>">
+          <input type="hidden" name="dashboard_id" value="<?= view.ID ?>">
+          <input type="hidden" name="expected_revision" value="<?= view.Revision ?>">
+          <label for="dashboard-edit-slug">URL slug</label><input id="dashboard-edit-slug" name="slug" value="<?= view.Slug ?>" required maxlength="63" pattern="[a-z][a-z0-9-]+">
+          <label for="dashboard-edit-name">Name</label><input id="dashboard-edit-name" name="name" value="<?= view.Name ?>" required maxlength="128">
+          <label for="dashboard-edit-description">Description</label><textarea id="dashboard-edit-description" name="description" required maxlength="1024"><?= view.Description ?></textarea>
+          <button type="submit">Update dashboard details</button>
+        </form>
+        <? for index, panel := range view.Panels { ?>
+        <section class="editor-card" aria-labelledby="panel-editor-<?= index ?>">
+          <h3 id="panel-editor-<?= index ?>">Panel <?= index + 1 ?></h3>
+          <form method="post" action="/app/dashboards/<?= view.Slug ?>/panels/<?= panel.ID ?>/">
+            <input type="hidden" name="organization_id" value="<?= view.Organization.ID ?>">
+            <input type="hidden" name="csrf_token" value="<?= view.ManageCSRF ?>">
+            <input type="hidden" name="dashboard_id" value="<?= view.ID ?>">
+            <input type="hidden" name="expected_revision" value="<?= view.Revision ?>">
+            <label for="panel-title-<?= index ?>">Title</label><input id="panel-title-<?= index ?>" name="panel_title" value="<?= panel.Title ?>" required maxlength="128">
+            <label for="panel-query-<?= index ?>">Saved query</label>
+            <select id="panel-query-<?= index ?>" name="saved_query_id" required>
+            <? for _, item := range view.SavedQueries { ?>
+              <? if item.ID == panel.SavedQueryID { ?><option value="<?= item.ID ?>" selected><?= item.Name ?></option><? } else { ?><option value="<?= item.ID ?>"><?= item.Name ?></option><? } ?>
+            <? } ?>
+            </select>
+            <label for="panel-visualization-<?= index ?>">Presentation</label>
+            <select id="panel-visualization-<?= index ?>" name="visualization" required>
+              <? if panel.Visualization == "table" { ?><option value="table" selected>Table</option><? } else { ?><option value="table">Table</option><? } ?>
+              <? if panel.Visualization == "stat" { ?><option value="stat" selected>Single statistic with table</option><? } else { ?><option value="stat">Single statistic with table</option><? } ?>
+              <? if panel.Visualization == "timeseries" { ?><option value="timeseries" selected>Time series with table</option><? } else { ?><option value="timeseries">Time series with table</option><? } ?>
+            </select>
+            <button type="submit">Update panel</button>
+          </form>
+          <details>
+            <summary>Remove this panel</summary>
+            <p>This removes the panel from the dashboard definition. The saved query remains available.</p>
+            <form method="post" action="/app/dashboards/<?= view.Slug ?>/panels/<?= panel.ID ?>/remove/">
+              <input type="hidden" name="organization_id" value="<?= view.Organization.ID ?>">
+              <input type="hidden" name="csrf_token" value="<?= view.ManageCSRF ?>">
+              <input type="hidden" name="dashboard_id" value="<?= view.ID ?>">
+              <input type="hidden" name="expected_revision" value="<?= view.Revision ?>">
+              <button class="secondary" type="submit">Confirm panel removal</button>
+            </form>
+          </details>
+        </section>
+        <? } ?>
+        <? if len(view.Panels) < 16 { ?>
+        <form class="editor-card" method="post" action="/app/dashboards/<?= view.Slug ?>/panels/">
+          <h3>Add a panel</h3>
+          <input type="hidden" name="organization_id" value="<?= view.Organization.ID ?>">
+          <input type="hidden" name="csrf_token" value="<?= view.ManageCSRF ?>">
+          <input type="hidden" name="dashboard_id" value="<?= view.ID ?>">
+          <input type="hidden" name="expected_revision" value="<?= view.Revision ?>">
+          <label for="panel-add-title">Title</label><input id="panel-add-title" name="panel_title" required maxlength="128">
+          <label for="panel-add-query">Saved query</label>
+          <select id="panel-add-query" name="saved_query_id" required><option value="">Choose a saved query</option><? for _, item := range view.SavedQueries { ?><option value="<?= item.ID ?>"><?= item.Name ?></option><? } ?></select>
+          <label for="panel-add-visualization">Presentation</label>
+          <select id="panel-add-visualization" name="visualization" required><option value="table">Table</option><option value="stat">Single statistic with table</option><option value="timeseries">Time series with table</option></select>
+          <? if len(view.SavedQueries) == 0 { ?><button type="submit" disabled>Add panel</button><? } else { ?><button type="submit">Add panel</button><? } ?>
+        </form>
+        <? } ?>
+      </div>
+    </section>
+    <? } ?>
+  </main>
+  <?~ SiteFooter() ?>
+</body>
+</html>

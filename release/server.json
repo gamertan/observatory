@@ -1,0 +1,30 @@
+{
+  "schema": 1,
+  "listen": "127.0.0.1:8093",
+  "public_url": "https://observatory.gamertan.com",
+  "data_dir": "/var/lib/gamertan-observatory",
+  "max_body_bytes": 33554432,
+  "max_concurrent_ingest": 8,
+  "session_lifetime": "12h",
+  "query": {
+    "max_duration": "5s",
+    "max_rows": 10000,
+    "max_scanned_bytes": 268435456,
+    "max_memory_bytes": 134217728
+  },
+  "retention": {
+    "raw_logs_days": 30,
+    "raw_traces_days": 30,
+    "raw_metrics_days": 14,
+    "cold_raw_days": 400,
+    "delete_cold_raw": false,
+    "metric_rollups_days": 400,
+    "evidence_days": 400
+  },
+  "web_push": {
+    "private_key_file": "/run/credentials/gamertan-observatory.service/web-push.json",
+    "subject": "mailto:security@sandwichhime.com",
+    "queue_capacity": 64,
+    "request_timeout": "10s"
+  }
+}

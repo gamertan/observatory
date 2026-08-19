@@ -1,0 +1,42 @@
+{
+  "schema": 1,
+  "server_url": "https://observatory.example.com",
+  "credential_file": "/etc/gamertan-observatory/agent-credential.json",
+  "spool_dir": "/var/lib/gamertan-observatory-agent",
+  "state_file": "/var/lib/gamertan-observatory-agent/state.json",
+  "max_spool_bytes": 5368709120,
+  "max_spool_age": "72h",
+  "batch_records": 5000,
+  "flush_interval": "1s",
+  "sources": [
+    {
+      "kind": "caddy_json",
+      "path": "/var/log/caddy/example-access.jsonl",
+      "stream_id": "caddy-access"
+    },
+    {
+      "kind": "requestlog_jsonl",
+      "path": "/var/log/example/request.jsonl",
+      "stream_id": "application-request"
+    },
+    {
+      "kind": "tend_events_jsonl",
+      "path": "/opt/example/deployment-events.jsonl",
+      "stream_id": "tend-deployments"
+    },
+    {
+      "kind": "linux_metrics",
+      "stream_id": "host-metrics",
+      "linux_metrics": {
+        "proc_root": "/proc",
+        "cgroup_root": "/sys/fs/cgroup",
+        "filesystems": [
+          { "name": "root", "path": "/" }
+        ],
+        "cgroups": [
+          { "name": "example-service", "path": "system.slice/example.service" }
+        ]
+      }
+    }
+  ]
+}

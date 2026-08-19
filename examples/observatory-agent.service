@@ -1,0 +1,31 @@
+# SPDX-License-Identifier: 0BSD
+
+[Unit]
+Description=Gamertan Observatory agent
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=observatory-agent
+Group=observatory-agent
+LoadCredential=agent.json:/etc/gamertan-observatory/agent.json
+LoadCredential=agent-credential.json:/etc/gamertan-observatory/agent-credential.json
+ExecStart=/usr/local/bin/observatory agent --systemd-credentials --config %d/agent.json --credential-file %d/agent-credential.json
+Restart=on-failure
+RestartSec=5s
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictSUIDSGID=yes
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+ReadWritePaths=/var/lib/gamertan-observatory-agent
+
+[Install]
+WantedBy=multi-user.target

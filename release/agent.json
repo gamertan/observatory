@@ -1,0 +1,57 @@
+{
+  "schema": 1,
+  "server_url": "https://observatory.gamertan.com",
+  "credential_file": "/etc/gamertan-observatory/agent-credential.json",
+  "spool_dir": "/var/lib/gamertan-observatory-agent",
+  "state_file": "/var/lib/gamertan-observatory-agent/state.json",
+  "max_spool_bytes": 5368709120,
+  "max_spool_age": "72h",
+  "batch_records": 5000,
+  "flush_interval": "1s",
+  "sources": [
+    {
+      "kind": "caddy_json",
+      "path": "/var/log/caddy/eqlwiki-edge.jsonl",
+      "stream_id": "eql-edge"
+    },
+    {
+      "kind": "requestlog_jsonl",
+      "path": "/var/log/eqlwiki/access.jsonl",
+      "stream_id": "eql-application"
+    },
+    {
+      "kind": "tend_events_jsonl",
+      "path": "/opt/gamertancom/deployment-events.jsonl",
+      "stream_id": "tend-gamertancom"
+    },
+    {
+      "kind": "tend_events_jsonl",
+      "path": "/opt/sandwich-hime-site/deployment-events.jsonl",
+      "stream_id": "tend-sandwich-hime-site"
+    },
+    {
+      "kind": "tend_events_jsonl",
+      "path": "/opt/gamertan-observatory/deployment-events.jsonl",
+      "stream_id": "tend-observatory"
+    },
+    {
+      "kind": "linux_metrics",
+      "stream_id": "public-node-host-metrics",
+      "linux_metrics": {
+        "proc_root": "/proc",
+        "cgroup_root": "/sys/fs/cgroup",
+        "filesystems": [
+          { "name": "root", "path": "/" }
+        ],
+        "cgroups": [
+          { "name": "caddy", "path": "system.slice/caddy.service" },
+          { "name": "eql", "path": "system.slice/system-eqlwiki.slice" },
+          { "name": "gamertan", "path": "system.slice/system-gamertancom.slice" },
+          { "name": "sandwich-hime", "path": "system.slice/sandwich-hime-site.service" },
+          { "name": "observatory", "path": "system.slice/gamertan-observatory.service" },
+          { "name": "observatory-agent", "path": "system.slice/gamertan-observatory-agent.service" }
+        ]
+      }
+    }
+  ]
+}

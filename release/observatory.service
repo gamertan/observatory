@@ -1,0 +1,50 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+[Unit]
+Description=Gamertan Observatory
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=gamertan-observatory
+Group=gamertan-observatory
+LoadCredential=server.json:/etc/gamertan-observatory/server.json
+LoadCredential=web-push.json:/etc/gamertan-observatory/web-push.json
+EnvironmentFile=/etc/tend/environment/observatory.env
+ExecStart=/opt/gamertan-observatory/current/observatory server --config %d/server.json --systemd-credential-config
+Restart=on-failure
+RestartSec=2s
+TimeoutStartSec=20s
+TimeoutStopSec=20s
+KillMode=mixed
+UMask=0077
+
+StateDirectory=gamertan-observatory
+StateDirectoryMode=0700
+NoNewPrivileges=yes
+PrivateDevices=yes
+PrivateTmp=yes
+ProtectClock=yes
+ProtectControlGroups=yes
+ProtectHome=yes
+ProtectHostname=yes
+ProtectKernelLogs=yes
+ProtectKernelModules=yes
+ProtectKernelTunables=yes
+ProtectProc=invisible
+ProtectSystem=strict
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+RestrictNamespaces=yes
+RestrictRealtime=yes
+RestrictSUIDSGID=yes
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+SystemCallArchitectures=native
+CapabilityBoundingSet=
+AmbientCapabilities=
+TasksMax=128
+MemoryMax=768M
+LimitNOFILE=8192
+
+[Install]
+WantedBy=multi-user.target

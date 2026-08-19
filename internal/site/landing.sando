@@ -1,0 +1,35 @@
+<?sando go
+package site
+
+func Landing(view LandingView)
+?>
+<?# SPDX-License-Identifier: AGPL-3.0-only ?>
+<!doctype html>
+<html lang="en">
+<head><?~ Head(view.Head) ?></head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <?~ SiteHeader(false, "", "") ?>
+  <main id="main">
+    <section class="hero" aria-labelledby="hero-title">
+      <p class="eyebrow">Logs · metrics · traces · deployments</p>
+      <h1 id="hero-title">Keep the evidence close.</h1>
+      <p class="lede">Gamertan Observatory is a self-hosted observability platform being built for small, carefully operated Linux systems. It keeps raw evidence replayable, tenant boundaries explicit, and queries understandable.</p>
+      <p><a class="button" href="/login/">Open Observatory</a></p>
+    </section>
+    <section class="section-grid" aria-labelledby="working-model">
+      <div><p class="eyebrow">Working model</p><h2 id="working-model">One view without one giant trust boundary.</h2></div>
+      <div class="cards">
+        <article><h3>Evidence first</h3><p>Checksummed raw segments are committed before projections acknowledge an ingest. Indexes and dashboards remain rebuildable views.</p></article>
+        <article><h3>Scoped by the server</h3><p>Organization and resource identity come from enrolled sources and authenticated grants—not from telemetry payloads or query text.</p></article>
+        <article><h3>Bounded by default</h3><p>Ingestion, storage, queries, subscribers, and fields have explicit limits. Sensitive data requires a separate permission.</p></article>
+      </div>
+    </section>
+    <section class="section-grid" aria-labelledby="preview-status">
+      <div><p class="eyebrow">Current status</p><h2 id="preview-status">A private development preview.</h2></div>
+      <div class="prose"><p>The foundations are under active development and are not a public release yet. Logs, metrics, traces, deployment records, organizations, typed queries, schema activation, and persisted dashboard definitions are being integrated before the first preview.</p><p>The interface remains useful without JavaScript. Progressive live updates add a small convenience; they do not own navigation, querying, or incident history.</p></div>
+    </section>
+  </main>
+  <?~ SiteFooter() ?>
+</body>
+</html>
